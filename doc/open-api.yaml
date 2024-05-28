@@ -1,0 +1,148 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: demo server overview
+servers:
+  - url: https://127.0.0.1:8081/
+paths:
+  /data/{id}:
+    get:
+      description: Get single data by id
+      parameters:
+        - name: id
+          in: path
+          description: ID of query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: data response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Data"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /datas:
+    post:
+      description: Get multiple datas
+      requestBody:
+        description: pages offset and limit
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryPages"
+      responses:
+        "200":
+          description: data response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Datas"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /auth_token:
+    post:
+      description: Check an authorization token which input by user
+      requestBody:
+        description: token
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authToken:
+                  type: string
+                  default: auth_testing
+  
+      responses:
+        "200":
+          description: data response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: string
+                    default: ok
+        default:
+          description: authorization error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Data:
+      allOf:
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: "#/components/schemas/Page"
+
+    Datas:
+      allOf:
+        - type: object
+          required:
+            - data
+          properties:
+            data:
+              $ref: "#/components/schemas/Page"
+
+    Page:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        context:
+          type: string
+
+    QueryPages:
+      type: object
+      required:
+        - offset
+        - limit
+      properties:
+        offset:
+          type: integer
+        limit:
+          default: 10
+          type: integer
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        msg:
+          type: string
+        req:
+          type: object
