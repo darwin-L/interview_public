@@ -22,32 +22,26 @@ async function reqData(req, res, next, serverInstanse) {
 
     const errors = new serverDefinedError.data();
     const reqId = req.path_parameters.id;
-    if (typeof reqId !== "string") {
+    if (typeof reqId !== "string" || reqId.length != 24) {
       errors.inputNotValid();
       throw errors;
     }
 
-    // 2024-enterprise-cybersecurity-guide
-    // FIXME: token after /data/ needed to be set manually uO8XZHbaVLjEUNV3gE4JJ 
-    const url = process.env.url_token.toString().trim()
-    if (url === undefined || url.length != 21) {
-      errors.requireUrlNotValid()
-      throw errors
-    }
-    const postData = await fetch(
-      `https://teamt5.org/_next/data/${url}/tw/posts/${reqId}.json`
+    const url = "https://find.lawsnote.com/1/lawyer"
+    const getData = await fetch(
+      `${url}/${reqId}`
     );
 
-    const resData = await postData.json();
+    const resData = await getData.json();
 
-    if (resData.pageProps === undefined) {
+    if (resData.data === undefined) {
       errors.dataNotValid();
       throw errors;
     }
 
 
     res.status(200).type("json");
-    res.json({ data: resData.pageProps.post.contents });
+    res.json({ data: resData.data });
 
   } catch (e) {
     if (e.apiCode !== undefined) {
